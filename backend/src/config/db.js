@@ -1,0 +1,330 @@
+const { Pool } = require("pg");
+const fs = require("fs");
+const path = require("path");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+
+let useSqlite = false;
+let sqliteDb = null;
+let pgPool = null;
+
+// ลองเชื่อมต่อ PostgreSQL ถ้ามี (รองรับ DATABASE_URL จาก Cloud เช่น Render, Supabase, Neon)
+if (process.env.DATABASE_URL) {
+  pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes("sslmode=disable") || process.env.DATABASE_URL.includes("localhost")
+      ? false
+      : { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5000,
+  });
+} else {
+  pgPool = new Pool({
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "5432", 10),
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "engineering_db",
+    connectionTimeoutMillis: 2000,
+  });
+}
+
+pgPool.on("error", (err) => {
+  // Suppress uncaught error events when falling back
+});
+
+// ฟังก์ชันสร้างและ Seed ข้อมูลลง SQLite อัตโนมัติ
+function initSqlite() {
+  const { DatabaseSync } = require("node:sqlite");
+  const dbPath = path.join(__dirname, "../../engineering.db");
+  sqliteDb = new DatabaseSync(dbPath);
+
+  // Enable WAL and foreign keys
+  sqliteDb.exec("PRAGMA journal_mode = WAL;");
+  sqliteDb.exec("PRAGMA foreign_keys = ON;");
+
+  // Create Tables
+  sqliteDb.exec(`
+    CREATE TABLE IF NOT EXISTS departments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      head_user_id INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      employee_code TEXT UNIQUE NOT NULL,
+      full_name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT,
+      google_id TEXT UNIQUE,
+      department_id INTEGER,
+      position TEXT,
+      role TEXT NOT NULL CHECK (role IN ('lecturer', 'head', 'staff', 'admin')),
+      phone TEXT,
+      profile_image TEXT,
+      created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+      updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS leave_types (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      max_days_per_year INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS leave_balances (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      leave_type_id INTEGER NOT NULL,
+      year INTEGER NOT NULL,
+      total_days REAL NOT NULL DEFAULT 0,
+      used_days REAL NOT NULL DEFAULT 0,
+      UNIQUE (user_id, leave_type_id, year)
+    );
+
+    CREATE TABLE IF NOT EXISTS leave_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      leave_type_id INTEGER NOT NULL,
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      days_count REAL NOT NULL,
+      reason TEXT,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+      approved_by INTEGER,
+      approved_at DATETIME,
+      reject_reason TEXT,
+      attachment_url TEXT,
+      created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS announcements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      posted_by INTEGER,
+      image_url TEXT,
+      created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      title TEXT NOT NULL,
+      file_url TEXT NOT NULL,
+      category TEXT,
+      uploaded_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      type TEXT,
+      message TEXT NOT NULL,
+      is_read INTEGER DEFAULT 0,
+      related_id INTEGER,
+      created_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    );
+  `);
+
+  // Seed Initial Data if empty
+  const userCountStmt = sqliteDb.prepare("SELECT COUNT(*) AS count FROM users");
+  const userCount = userCountStmt.get().count;
+
+  if (userCount === 0) {
+    console.log("⚡ กำลังสร้างข้อมูลเริ่มต้นอัตโนมัติในฐานข้อมูล Local (SQLite)...");
+
+    // Leave types
+    sqliteDb.exec(`
+      INSERT OR IGNORE INTO leave_types (id, name, max_days_per_year) VALUES
+        (1, 'ลาป่วย', 30),
+        (2, 'ลากิจ', 10),
+        (3, 'ลาพักร้อน', 10);
+    `);
+
+    // Departments
+    sqliteDb.exec(`
+      INSERT OR IGNORE INTO departments (id, name) VALUES
+        (1, 'ภาควิชาวิศวกรรมคอมพิวเตอร์'),
+        (2, 'ภาควิชาวิศวกรรมไฟฟ้า'),
+        (3, 'ภาควิชาวิศวกรรมโยธา'),
+        (4, 'ภาควิชาวิศวกรรมเครื่องกล'),
+        (5, 'ภาควิชาวิศวกรรมอุตสาหการ');
+    `);
+
+    const pwAdmin = bcrypt.hashSync("admin1234", 10);
+    const pwHead = bcrypt.hashSync("head1234", 10);
+    const pwStaff = bcrypt.hashSync("staff1234", 10);
+    const pwUser = bcrypt.hashSync("user1234", 10);
+
+    const insertUser = sqliteDb.prepare(`
+      INSERT OR REPLACE INTO users (id, employee_code, full_name, email, password_hash, department_id, position, role, phone)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    insertUser.run(1, "ENG-ADM01", "ผู้ดูแลระบบ คณะวิศวกรรมศาสตร์", "admin@eng.ac.th", pwAdmin, 1, "ผู้อำนวยการฝ่ายเทคโนโลยีสารสนเทศ", "admin", "02-123-4567");
+    insertUser.run(2, "ENG-STF01", "นางสาวสมศรี จัดการงาน", "staff@eng.ac.th", pwStaff, null, "เจ้าหน้าที่บริหารงานทั่วไป (งานบุคคล)", "staff", "02-123-4568");
+    insertUser.run(3, "ENG-HOD01", "รศ.ดร.วิศวกิจ นวัตกรรม", "head.cpe@eng.ac.th", pwHead, 1, "หัวหน้าภาควิชาวิศวกรรมคอมพิวเตอร์", "head", "081-234-5678");
+    insertUser.run(4, "ENG-HOD02", "ศ.ดร.ธนากร ไฟฟ้าพลังงาน", "head.ee@eng.ac.th", pwHead, 2, "หัวหน้าภาควิชาวิศวกรรมไฟฟ้า", "head", "082-345-6789");
+    insertUser.run(5, "ENG-LEC01", "ผศ.ดร.สมชาย ปัญญาประดิษฐ์", "somchai.cpe@eng.ac.th", pwUser, 1, "อาจารย์ประจำภาควิชาวิศวกรรมคอมพิวเตอร์", "lecturer", "083-456-7890");
+    insertUser.run(6, "ENG-LEC02", "อ.ดร.สุดา สัญญาณอัจฉริยะ", "suda.ee@eng.ac.th", pwUser, 2, "อาจารย์ประจำภาควิชาวิศวกรรมไฟฟ้า", "lecturer", "084-567-8901");
+    insertUser.run(7, "ENG-LEC03", "ผศ.อนันต์ โครงสร้างมั่นคง", "anant.ce@eng.ac.th", pwUser, 3, "อาจารย์ประจำภาควิชาวิศวกรรมโยธา", "lecturer", "085-678-9012");
+    insertUser.run(8, "ENG-LEC04", "อ.วิชัย ยานยนต์พลังงานใหม่", "wichai.me@eng.ac.th", pwUser, 4, "อาจารย์ประจำภาควิชาวิศวกรรมเครื่องกล", "lecturer", "086-789-0123");
+
+    // Head user in departments
+    sqliteDb.exec("UPDATE departments SET head_user_id = 3 WHERE id = 1;");
+    sqliteDb.exec("UPDATE departments SET head_user_id = 4 WHERE id = 2;");
+
+    // Leave Balances for all users
+    const currentYear = new Date().getFullYear();
+    const insertBalance = sqliteDb.prepare(`
+      INSERT OR IGNORE INTO leave_balances (user_id, leave_type_id, year, total_days, used_days)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    for (let uId = 1; uId <= 8; uId++) {
+      for (let y = currentYear - 1; y <= currentYear; y++) {
+        insertBalance.run(uId, 1, y, 30, uId === 5 ? 2 : 0);
+        insertBalance.run(uId, 2, y, 10, uId === 5 ? 1 : (uId === 6 ? 1 : 0));
+        insertBalance.run(uId, 3, y, 10, 0);
+      }
+    }
+
+    // Sample Leave requests
+    sqliteDb.exec(`
+      INSERT INTO leave_requests (user_id, leave_type_id, start_date, end_date, days_count, reason, status) VALUES
+        (5, 3, date('now', '+5 days'), date('now', '+6 days'), 2, 'พักผ่อนประจำปีกับครอบครัว', 'pending'),
+        (5, 1, date('now', '-10 days'), date('now', '-9 days'), 2, 'มีไข้หวัด ปวดศีรษะ (มีใบรับรองแพทย์)', 'approved'),
+        (6, 2, date('now'), date('now'), 1, 'ติดต่อราชการทำหนังสือเดินทางเพื่อเข้าร่วมสัมมนาวิชาการ', 'approved');
+    `);
+
+    // Sample Announcements
+    sqliteDb.exec(`
+      INSERT INTO announcements (title, content, posted_by) VALUES
+        ('ประกาศปฏิทินวันหยุดราชการและการปฏิบัติงานประจำภาคการศึกษา', 'ขอความร่วมมือคณาจารย์และบุคลากรทุกท่านตรวจสอบปฏิทินการปฏิบัติงานและกำหนดการยื่นขออนุมัติต่างๆ ประจำภาคเรียนผ่านระบบออนไลน์', 1),
+        ('เปิดรับสมัครข้อเสนอโครงการวิจัยเพื่อขอรับทุนสนับสนุน ประจำปีงบประมาณ', 'ฝ่ายวิจัยและนวัตกรรม คณะวิศวกรรมศาสตร์ ขอเชิญชวนอาจารย์และนักวิจัยยื่นข้อเสนอโครงการวิจัยเพื่อขอรับทุนสนับสนุน สามารถดาวน์โหลดแบบฟอร์มได้ที่เมนูคลังเอกสาร', 1),
+        ('การส่งเสริมระบบสำนักงานไร้กระดาษ (Paperless) ภายในคณะวิศวกรรมศาสตร์', 'คณะวิศวกรรมศาสตร์ได้พัฒนาระบบยื่นคำขอลางานและจัดเก็บข้อมูลบุคลากรออนไลน์ เพื่อลดขั้นตอนการใช้กระดาษและเพิ่มความสะดวกรวดเร็วในการทำงาน', 1);
+    `);
+
+    // Sample Documents
+    sqliteDb.exec(`
+      INSERT INTO documents (user_id, title, file_url, category) VALUES
+        (1, 'แบบฟอร์มขออนุมัติเดินทางไปปฏิบัติงานและประชุมวิชาการ', '/uploads/sample-travel-form.pdf', 'แบบฟอร์มการลาและขออนุมัติ'),
+        (1, 'คู่มือการใช้งานระบบสารสนเทศบุคลากรและลางานออนไลน์', '/uploads/manual-hr-system.pdf', 'คู่มือและระเบียบข้อบังคับ'),
+        (1, 'ระเบียบมหาวิทยาลัยว่าด้วยการลาของบุคลากร', '/uploads/leave-regulation.pdf', 'คู่มือและระเบียบข้อบังคับ'),
+        (1, 'แบบฟอร์มขอรับทุนสนับสนุนการวิจัยและตีพิมพ์ผลงาน', '/uploads/research-fund-form.docx', 'เอกสารงานวิจัยและวิชาการ');
+    `);
+
+    // Sample Notification
+    sqliteDb.exec(`
+      INSERT INTO notifications (user_id, type, message, is_read) VALUES
+        (3, 'leave_request', 'มีคำขอลาพักร้อนใหม่จาก ผศ.ดร.สมชาย ปัญญาประดิษฐ์ รอการอนุมัติ', 0);
+    `);
+
+    console.log("✅ สร้างข้อมูลเริ่มต้นใน SQLite สำเร็จเรียบร้อย พร้อมใช้งานทันที!");
+  }
+}
+
+// แปลงคำสั่ง SQL ของ PostgreSQL ให้เป็นคำสั่งที่ SQLite เข้าใจได้
+function transformPgToSqlite(sql) {
+  let s = sql;
+
+  // ILIKE -> LIKE
+  s = s.replace(/\bILIKE\b/gi, "LIKE");
+
+  // NOW() -> datetime('now', 'localtime')
+  s = s.replace(/\bNOW\(\)/gi, "datetime('now', 'localtime')");
+
+  // CURRENT_DATE -> date('now', 'localtime')
+  s = s.replace(/\bCURRENT_DATE\b/gi, "date('now', 'localtime')");
+
+  // COALESCE with EXCLUDED or types
+  s = s.replace(/::float/gi, "");
+  s = s.replace(/::integer/gi, "");
+  s = s.replace(/::int/gi, "");
+
+  // EXTRACT(YEAR FROM col) -> strftime('%Y', col)
+  s = s.replace(/EXTRACT\s*\(\s*YEAR\s+FROM\s+([a-zA-Z0-9_.]+)\s*\)/gi, "cast(strftime('%Y', $1) as integer)");
+  // EXTRACT(MONTH FROM col) -> strftime('%m', col)
+  s = s.replace(/EXTRACT\s*\(\s*MONTH\s+FROM\s+([a-zA-Z0-9_.]+)\s*\)/gi, "cast(strftime('%m', $1) as integer)");
+
+  // ON CONFLICT (...) DO NOTHING -> INSERT OR IGNORE
+  if (/ON\s+CONFLICT\s*(\([^)]+\))?\s*DO\s+NOTHING/gi.test(s)) {
+    s = s.replace(/INSERT\s+INTO/gi, "INSERT OR IGNORE INTO");
+    s = s.replace(/ON\s+CONFLICT\s*(\([^)]+\))?\s*DO\s+NOTHING/gi, "");
+  }
+
+  // $1, $2, ... -> ?
+  s = s.replace(/\$\d+/g, "?");
+
+  return s;
+}
+
+// Unified Database Client
+const dbClient = {
+  async query(sqlText, params = []) {
+    // ถ้ายังไม่ได้ตัดสินใจว่าจะใช้ PG หรือ SQLite
+    if (!useSqlite && pgPool) {
+      try {
+        const res = await pgPool.query(sqlText, params);
+        return res;
+      } catch (err) {
+        if (err.code === "ECONNREFUSED" || err.code === "28P01" || err.code === "3D000" || err.message.includes("connect")) {
+          console.log("⚠️ ไม่พบ PostgreSQL Server หรือเชื่อมต่อไม่ได้ -> สลับมาใช้ฐานข้อมูล Local SQLite อัตโนมัติ!");
+          useSqlite = true;
+          initSqlite();
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    if (useSqlite) {
+      if (!sqliteDb) initSqlite();
+
+      const transformedSql = transformPgToSqlite(sqlText);
+      const trimmed = transformedSql.trim();
+      const isSelect = trimmed.toUpperCase().startsWith("SELECT");
+      const hasReturning = trimmed.toUpperCase().includes("RETURNING");
+
+      try {
+        const stmt = sqliteDb.prepare(transformedSql);
+
+        if (isSelect || hasReturning) {
+          const rows = stmt.all(...params);
+          return { rows: rows || [], rowCount: rows ? rows.length : 0 };
+        } else {
+          const result = stmt.run(...params);
+          return { rows: [], rowCount: result.changes };
+        }
+      } catch (sqliteErr) {
+        console.error("SQLite Query Error:", sqliteErr.message, "SQL:", transformedSql, "Params:", params);
+        throw sqliteErr;
+      }
+    }
+
+    return await pgPool.query(sqlText, params);
+  },
+
+  async end() {
+    if (pgPool) {
+      try {
+        await pgPool.end();
+      } catch {}
+    }
+  },
+};
+
+// ทดสอบ Connection ทันทีตอนเริ่มระบบ
+(async function testInit() {
+  try {
+    await pgPool.query("SELECT 1");
+    console.log("✅ เชื่อมต่อฐานข้อมูล PostgreSQL สำเร็จ");
+  } catch (err) {
+    console.log("ℹ️ ไม่พบ PostgreSQL (หรือยังไม่ได้เปิด pgAdmin) -> สลับใช้งาน Local SQLite อัตโนมัติ พร้อมใช้งานทันที!");
+    useSqlite = true;
+    initSqlite();
+  }
+})();
+
+module.exports = dbClient;

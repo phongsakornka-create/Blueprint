@@ -1,0 +1,164 @@
+========================================================================
+📋 ข้อมูลระบบจัดการบุคลากรและการลางานออนไลน์ คณะวิศวกรรมศาสตร์
+========================================================================
+
+------------------------------------------------------------------------
+1. บัญชีผู้ใช้งานสำหรับเข้าสู่ระบบ (Login Accounts)
+------------------------------------------------------------------------
+
+[1] ผู้ดูแลระบบ (Admin)
+- อีเมล: admin@eng.ac.th
+- รหัสผ่าน: admin1234
+- ตำแหน่ง: ผู้อำนวยการฝ่ายเทคโนโลยีสารสนเทศ
+- สิทธิ์: ดูแลระบบทั้งหมด, เพิ่ม/ลบ/แก้ไขบุคลากร, อนุมัติการลาทุกระดับ
+
+[2] หัวหน้าภาควิชาวิศวกรรมคอมพิวเตอร์ (Head of Department)
+- อีเมล: head.cpe@eng.ac.th
+- รหัสผ่าน: head1234
+- ตำแหน่ง: หัวหน้าภาควิชาวิศวกรรมคอมพิวเตอร์
+- สิทธิ์: พิจารณาอนุมัติการลา, ดูข้อมูลบุคลากรในภาควิชาคอมพิวเตอร์
+
+[3] หัวหน้าภาควิชาวิศวกรรมไฟฟ้า (Head of Department)
+- อีเมล: head.ee@eng.ac.th
+- รหัสผ่าน: head1234
+- ตำแหน่ง: หัวหน้าภาควิชาวิศวกรรมไฟฟ้า
+- สิทธิ์: พิจารณาอนุมัติการลา, ดูข้อมูลบุคลากรในภาควิชาไฟฟ้า
+
+[4] เจ้าหน้าที่งานบุคคล/คณะ (Staff)
+- อีเมล: staff@eng.ac.th
+- รหัสผ่าน: staff1234
+- ตำแหน่ง: เจ้าหน้าที่บริหารงานทั่วไป (งานบุคคล)
+- สิทธิ์: ค้นหาและดูข้อมูลบุคลากรทั้งคณะ, จัดการประกาศข่าวสาร, อัปโหลดเอกสารส่วนกลาง
+
+[5] อาจารย์ประจำภาควิชาวิศวกรรมคอมพิวเตอร์ (Lecturer)
+- อีเมล: somchai.cpe@eng.ac.th
+- รหัสผ่าน: user1234
+- ตำแหน่ง: ผศ.ดร.สมชาย ปัญญาประดิษฐ์
+- สิทธิ์: ยื่นคำขอลางาน, ดูยอดวันลาคงเหลือ, ดูปฏิทินการลา, ดูประกาศ, ดาวน์โหลดเอกสาร
+
+[6] อาจารย์ประจำภาควิชาวิศวกรรมไฟฟ้า (Lecturer)
+- อีเมล: suda.ee@eng.ac.th
+- รหัสผ่าน: user1234
+- ตำแหน่ง: อ.ดร.สุดา สัญญาณอัจฉริยะ
+
+[7] อาจารย์ประจำภาควิชาวิศวกรรมโยธา (Lecturer)
+- อีเมล: anant.ce@eng.ac.th
+- รหัสผ่าน: user1234
+- ตำแหน่ง: ผศ.อนันต์ โครงสร้างมั่นคง
+
+[8] อาจารย์ประจำภาควิชาวิศวกรรมเครื่องกล (Lecturer)
+- อีเมล: wichai.me@eng.ac.th
+- รหัสผ่าน: user1234
+- ตำแหน่ง: อ.วิชัย ยานยนต์พลังงานใหม่
+
+------------------------------------------------------------------------
+2. รายชื่อภาควิชา / สังกัด (Departments)
+------------------------------------------------------------------------
+1. ภาควิชาวิศวกรรมคอมพิวเตอร์ (Computer Engineering)
+2. ภาควิชาวิศวกรรมไฟฟ้า (Electrical Engineering)
+3. ภาควิชาวิศวกรรมโยธา (Civil Engineering)
+4. ภาควิชาวิศวกรรมเครื่องกล (Mechanical Engineering)
+5. ภาควิชาวิศวกรรมอุตสาหการ (Industrial Engineering)
+
+------------------------------------------------------------------------
+3. โควตาวันลาประจำปี (Leave Quotas)
+------------------------------------------------------------------------
+1. ลาป่วย (Sick Leave): 30 วัน/ปี
+2. ลากิจ (Personal Leave): 10 วัน/ปี
+3. ลาพักร้อน (Vacation Leave): 10 วัน/ปี
+
+------------------------------------------------------------------------
+4. คำสั่ง SQL สำหรับสร้างตาราง (Database Schema)
+------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS departments (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  head_user_id INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  employee_code VARCHAR(50) UNIQUE NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash TEXT,
+  google_id VARCHAR(255) UNIQUE,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  position VARCHAR(255),
+  role VARCHAR(20) NOT NULL CHECK (role IN ('lecturer', 'head', 'staff', 'admin')),
+  phone VARCHAR(50),
+  profile_image TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+ALTER TABLE departments
+  ADD CONSTRAINT fk_department_head
+  FOREIGN KEY (head_user_id) REFERENCES users(id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS leave_types (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  max_days_per_year INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS leave_balances (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  leave_type_id INTEGER NOT NULL REFERENCES leave_types(id) ON DELETE CASCADE,
+  year INTEGER NOT NULL,
+  total_days NUMERIC(5,1) NOT NULL DEFAULT 0,
+  used_days NUMERIC(5,1) NOT NULL DEFAULT 0,
+  UNIQUE (user_id, leave_type_id, year)
+);
+
+CREATE TABLE IF NOT EXISTS leave_requests (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  leave_type_id INTEGER NOT NULL REFERENCES leave_types(id),
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  days_count NUMERIC(5,1) NOT NULL,
+  reason TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  approved_by INTEGER REFERENCES users(id),
+  approved_at TIMESTAMP,
+  reject_reason TEXT,
+  attachment_url TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS announcements (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  posted_by INTEGER REFERENCES users(id),
+  image_url TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS documents (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  file_url TEXT NOT NULL,
+  category VARCHAR(100),
+  uploaded_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(50),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  related_id INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+------------------------------------------------------------------------
+5. ลิงก์เข้าใช้งานเว็บไซต์
+------------------------------------------------------------------------
+👉 Frontend: http://localhost:5173
+👉 Backend API: http://localhost:5000/api
