@@ -1,5 +1,4 @@
 services:
-  # Fullstack Web Service (Node.js API + Static Frontend Build)
   - type: web
     name: engineering-faculty-app
     env: node
@@ -11,3 +10,5 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      - key: PORT
+        value: 10000

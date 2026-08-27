@@ -1,7 +1,7 @@
 const { Pool } = require("pg");
 const fs = require("fs");
 const path = require("path");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 let useSqlite = false;
