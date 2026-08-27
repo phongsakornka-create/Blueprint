@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -14,10 +15,11 @@ const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
 
-app.use(cors({ origin: "*" })); // รองรับ Request จากทุก IP บนเครือข่ายมือถือ
+app.use(cors({ origin: "*" })); // รองรับ Request จากทุก IP และทุกโดเมนบน Cloud/มือถือ
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
+// API Endpoints
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/leave-requests", leaveRequestRoutes);
@@ -27,9 +29,21 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "Engineering Faculty Management API is running" });
-});
+// เสิร์ฟ Frontend Production Build อัตโนมัติ (รองรับ Cloud Fullstack และ SPA Routing)
+const frontendDist = path.join(__dirname, "../../frontend/dist");
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.json({ message: "Engineering Faculty Management API is running" });
+  });
+}
 
 // Global error handler กันแอปล่มถ้ามี error หลุดมา
 app.use((err, req, res, next) => {

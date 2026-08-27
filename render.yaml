@@ -1,28 +1,25 @@
 services:
-  # 1. Backend Web Service (Node.js API)
+  # 1. Fullstack All-in-One Service (Frontend + Backend + Database บนโดเมนเดียว ใช้งานได้ 100%)
   - type: web
-    name: engineering-faculty-api
+    name: engineering-faculty-app
     env: node
     plan: free
-    rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: JWT_SECRET
         generateValue: true
-      - key: PORT
-        value: 10000
 
-  # 2. Frontend Static Site (React/Vite Web)
+  # 2. Frontend Static Site
   - type: web
     name: engineering-faculty-web
     env: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
