@@ -3,6 +3,7 @@ import { documentService } from "../services/documentService";
 import { useAuth } from "../context/AuthContext";
 import { formatThaiDate } from "../utils/dateUtils";
 import Modal from "../components/Modal";
+import OfficialTemplateViewerModal from "../components/OfficialTemplateViewerModal";
 import {
   FolderArchive,
   Upload,
@@ -13,8 +14,6 @@ import {
   CheckCircle,
   AlertCircle,
   Printer,
-  ExternalLink,
-  Sparkles,
 } from "lucide-react";
 
 export default function Documents() {
@@ -28,6 +27,7 @@ export default function Documents() {
 
   // Modals
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [selectedDocToView, setSelectedDocToView] = useState(null);
   const [uploadData, setUploadData] = useState({
     title: "",
     category: "แบบฟอร์มการลาและขออนุมัติ",
@@ -116,10 +116,14 @@ export default function Documents() {
     }
   };
 
-  const getFullDocUrl = (url) => {
-    if (!url) return "#";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return url;
+  const handleOpenDoc = (doc) => {
+    // If it's a real uploaded file that starts with http or is not sample dummy
+    if (doc.file_url && (doc.file_url.startsWith("http://") || doc.file_url.startsWith("https://") || doc.file_url.startsWith("/uploads/doc-"))) {
+      window.open(doc.file_url, "_blank");
+    } else {
+      // Open our official interactive A4 printable template modal
+      setSelectedDocToView(doc);
+    }
   };
 
   return (
@@ -130,17 +134,17 @@ export default function Documents() {
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
             <span>คลังเอกสารและแบบฟอร์มทางการ (Paperless)</span>
             <span className="text-xs bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full font-bold">
-              แบบราชการ
+              แบบราชการ มกส.
             </span>
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            ศูนย์รวมแบบฟอร์ม บันทึกข้อความ ระเบียบข้อบังคับ และเอกสารทางการ คณะวิศวกรรมศาสตร์
+            ศูนย์รวมแบบฟอร์ม บันทึกข้อความ ระเบียบข้อบังคับ และเอกสารทางการ มหาวิทยาลัยกาฬสินธุ์
           </p>
         </div>
 
         <button
           onClick={() => setIsUploadOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md shadow-red-900/20 transition self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md shadow-red-900/20 transition self-start sm:self-auto cursor-pointer"
         >
           <Upload className="w-4 h-4" />
           อัปโหลดเอกสารใหม่
@@ -160,7 +164,7 @@ export default function Documents() {
             {message.type === "success" ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
             <span>{message.text}</span>
           </div>
-          <button onClick={() => setMessage({ text: "", type: "" })} className="text-xs font-semibold underline">
+          <button onClick={() => setMessage({ text: "", type: "" })} className="text-xs font-semibold underline cursor-pointer">
             ปิด
           </button>
         </div>
@@ -181,7 +185,7 @@ export default function Documents() {
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-xl"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-xl cursor-pointer"
           >
             ค้นหา
           </button>
@@ -194,7 +198,7 @@ export default function Documents() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 cursor-pointer ${
               selectedCategory === cat.id
                 ? "bg-red-800 text-white shadow-xs"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -247,32 +251,29 @@ export default function Documents() {
               {/* Action Buttons */}
               <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <a
-                    href={getFullDocUrl(doc.file_url)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-xs font-bold shadow-xs transition"
+                  <button
+                    type="button"
+                    onClick={() => handleOpenDoc(doc)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-800 hover:bg-red-900 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     เปิดดู & สั่งพิมพ์
-                  </a>
+                  </button>
 
-                  <a
-                    href={getFullDocUrl(doc.file_url)}
-                    download
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition"
+                  <button
+                    type="button"
+                    onClick={() => handleOpenDoc(doc)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    ดาวน์โหลด
-                  </a>
+                    ดาวน์โหลด PDF
+                  </button>
                 </div>
 
                 {(user?.role === "admin" || user?.id === doc.user_id) && (
                   <button
                     onClick={() => setDeleteConfirmId(doc.id)}
-                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
+                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer"
                     title="ลบเอกสาร"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -380,6 +381,14 @@ export default function Documents() {
           </div>
         </div>
       </Modal>
+
+      {/* Official Template Viewer Modal */}
+      <OfficialTemplateViewerModal
+        isOpen={!!selectedDocToView}
+        onClose={() => setSelectedDocToView(null)}
+        doc={selectedDocToView}
+        user={user}
+      />
     </div>
   );
 }
