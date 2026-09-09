@@ -7,13 +7,12 @@ import {
   Mail,
   AlertCircle,
   ArrowRight,
-  ShieldCheck,
   Eye,
   EyeOff,
 } from "lucide-react";
 
 export default function Login() {
-  const { login, quickLogin, isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -43,7 +42,7 @@ export default function Login() {
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.code === "ERR_NETWORK" || err.message?.includes("Network Error")) {
-        setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้ (กรุณาปิดหน้าต่างรันเดิมแล้วเปิด start.bat ใหม่)");
+        setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้ (กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)");
       } else {
         setError(err.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
       }
@@ -52,28 +51,8 @@ export default function Login() {
     }
   };
 
-  const handleQuickDemo = async (role) => {
-    setError("");
-    setLoading(true);
-    try {
-      await quickLogin(role);
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Quick demo login error:", err);
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.code === "ERR_NETWORK" || err.message?.includes("Network Error")) {
-        setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้ (กรุณาปิดหน้าต่างรันเดิมแล้วเปิด start.bat ใหม่)");
-      } else {
-        setError("ไม่สามารถเข้าสู่ระบบด้วยบัญชีทดสอบได้: " + (err.message || ""));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 pb-20">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 pb-12">
       <div className="max-w-md w-full">
         {/* Card Header & Brand */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden">
@@ -116,7 +95,7 @@ export default function Login() {
                     spellCheck="false"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@eng.ac.th"
+                    placeholder="example@eng.ac.th"
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800 transition"
                   />
                 </div>
@@ -166,46 +145,6 @@ export default function Login() {
                 )}
               </button>
             </form>
-
-            {/* Quick Demo Login Box */}
-            <div className="mt-6 pt-5 border-t border-slate-200">
-              <div className="flex items-center gap-2 mb-3">
-                <ShieldCheck className="w-4 h-4 text-slate-600" />
-                <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                  ทดสอบระบบด่วน (Quick Demo 1-Click)
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("admin")}
-                  className="py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold rounded-xl border border-rose-200 transition text-left"
-                >
-                  👑 Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("head")}
-                  className="py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold rounded-xl border border-purple-200 transition text-left"
-                >
-                  👔 หัวหน้าสาขา
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("staff")}
-                  className="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 transition text-left"
-                >
-                  📋 เจ้าหน้าที่
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("lecturer")}
-                  className="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-bold rounded-xl border border-blue-200 transition text-left"
-                >
-                  🎓 อาจารย์
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
