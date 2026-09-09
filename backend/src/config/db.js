@@ -162,14 +162,14 @@ function initSqlite() {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    insertUser.run(1, "ENG-ADM01", "ผู้ดูแลระบบ คณะวิศวกรรมศาสตร์", "admin@eng.ac.th", pwAdmin, 1, "ผู้อำนวยการฝ่ายเทคโนโลยีสารสนเทศ", "admin", "02-123-4567");
-    insertUser.run(2, "ENG-STF01", "นางสาวสมศรี จัดการงาน", "staff@eng.ac.th", pwStaff, null, "เจ้าหน้าที่บริหารงานทั่วไป (งานบุคคล)", "staff", "02-123-4568");
-    insertUser.run(3, "ENG-HOD01", "รศ.ดร.วิศวกิจ นวัตกรรม", "head.cpe@eng.ac.th", pwHead, 1, "หัวหน้าภาควิชาวิศวกรรมคอมพิวเตอร์", "head", "081-234-5678");
-    insertUser.run(4, "ENG-HOD02", "ศ.ดร.ธนากร ไฟฟ้าพลังงาน", "head.ee@eng.ac.th", pwHead, 2, "หัวหน้าภาควิชาวิศวกรรมไฟฟ้า", "head", "082-345-6789");
-    insertUser.run(5, "ENG-LEC01", "ผศ.ดร.สมชาย ปัญญาประดิษฐ์", "somchai.cpe@eng.ac.th", pwUser, 1, "อาจารย์ประจำภาควิชาวิศวกรรมคอมพิวเตอร์", "lecturer", "083-456-7890");
-    insertUser.run(6, "ENG-LEC02", "อ.ดร.สุดา สัญญาณอัจฉริยะ", "suda.ee@eng.ac.th", pwUser, 2, "อาจารย์ประจำภาควิชาวิศวกรรมไฟฟ้า", "lecturer", "084-567-8901");
-    insertUser.run(7, "ENG-LEC03", "ผศ.อนันต์ โครงสร้างมั่นคง", "anant.ce@eng.ac.th", pwUser, 3, "อาจารย์ประจำภาควิชาวิศวกรรมโยธา", "lecturer", "085-678-9012");
-    insertUser.run(8, "ENG-LEC04", "อ.วิชัย ยานยนต์พลังงานใหม่", "wichai.me@eng.ac.th", pwUser, 4, "อาจารย์ประจำภาควิชาวิศวกรรมเครื่องกล", "lecturer", "086-789-0123");
+    insertUser.run(1, "ENG-ADM01", "ผู้ดูแลระบบ คณะวิศวกรรมศาสตร์", "admin@ksu.ac.th", pwAdmin, 1, "ผู้อำนวยการฝ่ายเทคโนโลยีสารสนเทศ", "admin", "02-123-4567");
+    insertUser.run(2, "ENG-STF01", "นางสาวสมศรี จัดการงาน", "staff@ksu.ac.th", pwStaff, null, "เจ้าหน้าที่บริหารงานทั่วไป (งานบุคคล)", "staff", "02-123-4568");
+    insertUser.run(3, "ENG-HOD01", "รศ.ดร.วิศวกิจ นวัตกรรม", "head.cpe@ksu.ac.th", pwHead, 1, "หัวหน้าภาควิชาวิศวกรรมคอมพิวเตอร์", "head", "081-234-5678");
+    insertUser.run(4, "ENG-HOD02", "ศ.ดร.ธนากร ไฟฟ้าพลังงาน", "head.ee@ksu.ac.th", pwHead, 2, "หัวหน้าภาควิชาวิศวกรรมไฟฟ้า", "head", "082-345-6789");
+    insertUser.run(5, "ENG-LEC01", "ผศ.ดร.สมชาย ปัญญาประดิษฐ์", "somchai.cpe@ksu.ac.th", pwUser, 1, "อาจารย์ประจำภาควิชาวิศวกรรมคอมพิวเตอร์", "lecturer", "083-456-7890");
+    insertUser.run(6, "ENG-LEC02", "อ.ดร.สุดา สัญญาณอัจฉริยะ", "suda.ee@ksu.ac.th", pwUser, 2, "อาจารย์ประจำภาควิชาวิศวกรรมไฟฟ้า", "lecturer", "084-567-8901");
+    insertUser.run(7, "ENG-LEC03", "ผศ.อนันต์ โครงสร้างมั่นคง", "anant.ce@ksu.ac.th", pwUser, 3, "อาจารย์ประจำภาควิชาวิศวกรรมโยธา", "lecturer", "085-678-9012");
+    insertUser.run(8, "ENG-LEC04", "อ.วิชัย ยานยนต์พลังงานใหม่", "wichai.me@ksu.ac.th", pwUser, 4, "อาจารย์ประจำภาควิชาวิศวกรรมเครื่องกล", "lecturer", "086-789-0123");
 
     // Head user in departments
     sqliteDb.exec("UPDATE departments SET head_user_id = 3 WHERE id = 1;");

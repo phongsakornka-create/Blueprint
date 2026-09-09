@@ -15,13 +15,20 @@ async function login(req, res) {
   email = String(email).trim().toLowerCase();
   password = String(password).trim();
 
+  let emailAlt = email;
+  if (email.endsWith("@ksu.ac.th")) {
+    emailAlt = email.replace("@ksu.ac.th", "@eng.ac.th");
+  } else if (email.endsWith("@eng.ac.th")) {
+    emailAlt = email.replace("@eng.ac.th", "@ksu.ac.th");
+  }
+
   try {
     const result = await pool.query(
       `SELECT u.*, d.name AS department_name 
        FROM users u 
        LEFT JOIN departments d ON d.id = u.department_id 
-       WHERE LOWER(TRIM(u.email)) = LOWER(TRIM($1))`,
-      [email]
+       WHERE LOWER(TRIM(u.email)) = LOWER(TRIM($1)) OR LOWER(TRIM(u.email)) = LOWER(TRIM($2))`,
+      [email, emailAlt]
     );
     const user = result.rows[0];
 

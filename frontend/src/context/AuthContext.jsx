@@ -55,10 +55,10 @@ export function AuthProvider({ children }) {
   // ปุ่ม Quick Demo Login สำหรับสลับทดสอบแต่ละ Role ใน 1 คลิก
   const quickLogin = async (role) => {
     const demoAccounts = {
-      admin: { email: "admin@eng.ac.th", password: "admin1234" },
-      head: { email: "head.cpe@eng.ac.th", password: "head1234" },
-      staff: { email: "staff@eng.ac.th", password: "staff1234" },
-      lecturer: { email: "somchai.cpe@eng.ac.th", password: "user1234" },
+      admin: { email: "admin@ksu.ac.th", password: "admin1234" },
+      head: { email: "head.cpe@ksu.ac.th", password: "head1234" },
+      staff: { email: "staff@ksu.ac.th", password: "staff1234" },
+      lecturer: { email: "somchai.cpe@ksu.ac.th", password: "user1234" },
     };
 
     const creds = demoAccounts[role] || demoAccounts.admin;

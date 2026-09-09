@@ -603,7 +603,7 @@ export default function Employees() {
               <input
                 type="email"
                 required
-                placeholder="name@eng.ac.th"
+                placeholder="name@ksu.ac.th"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800"
