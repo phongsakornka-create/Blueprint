@@ -99,15 +99,17 @@ export default function Navbar({ onToggleSidebar }) {
           </button>
 
           <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-800 to-red-950 flex items-center justify-center text-white font-bold shadow-md shadow-red-900/20">
-              <Building className="w-5 h-5 text-red-100" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="ตราคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยกาฬสินธุ์"
+              className="w-10 h-10 object-contain drop-shadow-xs shrink-0"
+            />
             <div>
               <h1 className="text-base sm:text-lg font-extrabold text-slate-800 tracking-tight leading-none">
-                คณะวิศวกรรมศาสตร์
+                คณะวิศวกรรมศาสตร์ฯ
               </h1>
               <p className="text-[11px] text-slate-600 font-medium mt-0.5">
-                Faculty of Engineering HR & Leave System
+                มหาวิทยาลัยกาฬสินธุ์ • HR & Leave System
               </p>
             </div>
           </Link>

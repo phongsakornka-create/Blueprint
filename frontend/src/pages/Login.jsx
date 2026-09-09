@@ -57,12 +57,19 @@ export default function Login() {
         {/* Card Header & Brand */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden">
           <div className="bg-gradient-to-br from-red-900 via-red-800 to-slate-900 p-6 sm:p-8 text-white text-center relative">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 mb-3 sm:mb-4 shadow-inner">
-              <Building className="w-8 h-8 sm:w-9 sm:h-9 text-red-200" />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-white rounded-2xl flex items-center justify-center p-2 mb-3 sm:mb-4 shadow-lg">
+              <img
+                src="/logo.png"
+                alt="มหาวิทยาลัยกาฬสินธุ์"
+                className="w-full h-full object-contain"
+              />
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight">มหาวิทยาลัยกาฬสินธุ์</h2>
-            <p className="text-xs sm:text-sm text-red-100/80 mt-1 font-light">
-              ระบบจัดเก็บข้อมูลบุคลากรและการลางานออนไลน์ • คณะวิศวกรรมศาสตร์
+            <p className="text-xs sm:text-sm text-red-100/90 mt-1 font-medium">
+              คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม
+            </p>
+            <p className="text-[11px] text-red-200/80 mt-0.5 font-light">
+              ระบบจัดเก็บข้อมูลบุคลากรและการลางานออนไลน์
             </p>
           </div>
 

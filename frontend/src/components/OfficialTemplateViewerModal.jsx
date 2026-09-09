@@ -51,7 +51,11 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
               <div className="space-y-4 text-xs sm:text-sm">
                 <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <Building className="w-7 h-7 text-red-900" />
+                    <img
+                      src="/logo.png"
+                      alt="ตราคณะ"
+                      className="w-10 h-10 object-contain"
+                    />
                     <h1 className="text-lg font-bold text-slate-900">
                       บันทึกข้อความ (แบบขออนุมัติเดินทางไปปฏิบัติงานและประชุมวิชาการ)
                     </h1>
@@ -97,7 +101,11 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
               <div className="space-y-4 text-xs sm:text-sm">
                 <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <Building className="w-7 h-7 text-red-900" />
+                    <img
+                      src="/logo.png"
+                      alt="ตราคณะ"
+                      className="w-10 h-10 object-contain"
+                    />
                     <h1 className="text-lg font-bold text-slate-900">
                       แบบใบลา (ลาป่วย • ลากิจส่วนตัว • ลาพักผ่อน)
                     </h1>
@@ -183,7 +191,11 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
               <div className="space-y-4 text-xs sm:text-sm">
                 <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
-                    <Building className="w-7 h-7 text-red-900" />
+                    <img
+                      src="/logo.png"
+                      alt="ตราคณะ"
+                      className="w-10 h-10 object-contain"
+                    />
                     <h1 className="text-lg font-bold text-slate-900">
                       {title}
                     </h1>

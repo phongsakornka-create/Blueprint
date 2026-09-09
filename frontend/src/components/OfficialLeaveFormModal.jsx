@@ -46,7 +46,11 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
             {/* Header / University Banner */}
             <div className="text-center border-b-2 border-slate-800 pb-3 mb-4">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Building className="w-7 h-7 text-red-900" />
+                <img
+                  src="/logo.png"
+                  alt="ตราคณะ"
+                  className="w-10 h-10 object-contain"
+                />
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">
                   มหาวิทยาลัยกาฬสินธุ์
                 </h1>

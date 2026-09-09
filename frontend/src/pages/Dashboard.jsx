@@ -54,18 +54,26 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 pb-12">
       {/* Top Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-red-900 via-red-800 to-slate-900 text-white p-6 sm:p-8 shadow-lg shadow-red-950/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-red-200 uppercase tracking-wider mb-1">
-            <Building className="w-4 h-4" />
-            <span>{user?.department_name || "คณะวิศวกรรมศาสตร์"}</span>
+      <div className="rounded-3xl bg-gradient-to-r from-red-900 via-red-800 to-slate-900 text-white p-6 sm:p-8 shadow-lg shadow-red-950/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white p-1.5 shadow-md flex items-center justify-center shrink-0">
+            <img
+              src="/logo.png"
+              alt="ตราคณะ"
+              className="w-full h-full object-contain"
+            />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            สวัสดี, {user?.full_name || "อาจารย์/บุคลากร"}
-          </h1>
-          <p className="text-sm text-red-100/80 mt-1">
-            ยินดีต้อนรับสู่ระบบสารสนเทศบุคลากรและระบบการลางานออนไลน์ คณะวิศวกรรมศาสตร์
-          </p>
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-red-200 uppercase tracking-wider mb-1">
+              <span>{user?.department_name || "คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม"}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              สวัสดี, {user?.full_name || "อาจารย์/บุคลากร"}
+            </h1>
+            <p className="text-sm text-red-100/80 mt-1">
+              ยินดีต้อนรับสู่ระบบสารสนเทศบุคลากรและระบบการลางานออนไลน์ มหาวิทยาลัยกาฬสินธุ์
+            </p>
+          </div>
         </div>
 
         {/* Quick Action Buttons */}

@@ -98,12 +98,14 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Header / Brand */}
         <div className="h-16 flex items-center justify-between px-6 bg-slate-950/60 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-red-700 flex items-center justify-center font-bold text-white shadow-xs">
-              EN
-            </div>
+            <img
+              src="/logo.png"
+              alt="ตราคณะวิศวกรรมศาสตร์"
+              className="w-8 h-8 object-contain shrink-0 drop-shadow-sm"
+            />
             <div className="leading-tight">
-              <span className="font-extrabold text-sm tracking-wide text-white">ENGINEERING</span>
-              <span className="block text-[10px] text-slate-400 font-medium">คณะวิศวกรรมศาสตร์</span>
+              <span className="font-extrabold text-xs tracking-tight text-white block">มหาวิทยาลัยกาฬสินธุ์</span>
+              <span className="block text-[10px] text-red-300 font-medium truncate max-w-[135px]">คณะวิศวกรรมศาสตร์ฯ</span>
             </div>
           </div>
           <button
