@@ -31,7 +31,7 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition"
+              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -39,28 +39,31 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
         </div>
 
         {/* Printable Paper Document Container */}
-        <div className="p-6 sm:p-10 overflow-y-auto print:p-0 print:overflow-visible print:text-black font-sans leading-relaxed text-slate-800">
-          <div className="border border-slate-300 p-8 rounded-2xl bg-white print:border-none print:p-0">
+        <div className="p-6 sm:p-10 overflow-y-auto print:p-0 print:overflow-visible font-sans text-slate-800">
+          <div
+            id="printable-document"
+            className="border border-slate-300 p-8 rounded-2xl bg-white print:border-none print:p-0 print:text-black leading-relaxed"
+          >
             {/* Header / University Banner */}
-            <div className="text-center border-b-2 border-slate-800 pb-5 mb-6">
-              <div className="flex items-center justify-center gap-3 mb-1">
-                <Building className="w-8 h-8 text-red-900 print:text-black" />
+            <div className="text-center border-b-2 border-slate-800 pb-3 mb-4">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Building className="w-7 h-7 text-red-900 print:text-black" />
                 <h1 className="text-xl font-bold tracking-tight text-slate-900 print:text-black">
                   มหาวิทยาลัยกาฬสินธุ์
                 </h1>
               </div>
-              <h2 className="text-sm font-semibold text-slate-700 print:text-black">
+              <h2 className="text-xs font-semibold text-slate-700 print:text-black">
                 คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม
               </h2>
-              <div className="inline-block mt-3 px-4 py-1 bg-slate-100 print:bg-transparent border border-slate-300 rounded-lg">
-                <span className="text-sm font-bold text-slate-900 print:text-black">
+              <div className="inline-block mt-2 px-3 py-0.5 bg-slate-100 print:bg-transparent border border-slate-300 rounded-md">
+                <span className="text-xs font-bold text-slate-900 print:text-black">
                   แบบใบลา ({request.leave_type_name || "การลา"})
                 </span>
               </div>
             </div>
 
             {/* Document Meta Info */}
-            <div className="flex justify-between items-start text-xs sm:text-sm mb-6 text-slate-700 print:text-black">
+            <div className="flex justify-between items-start text-xs mb-4 text-slate-700 print:text-black">
               <div>
                 <p><strong>เลขที่คำขอ:</strong> ENG-LV-{String(request.id).padStart(5, "0")}</p>
                 <p><strong>เขียนที่:</strong> คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม</p>
@@ -71,18 +74,18 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
             </div>
 
             {/* Salutation */}
-            <div className="mb-4 text-xs sm:text-sm text-slate-800 print:text-black">
+            <div className="mb-3 text-xs text-slate-800 print:text-black">
               <p><strong>เรื่อง:</strong> ขออนุญาต{request.leave_type_name}</p>
-              <p className="mt-1"><strong>เรียน:</strong> คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม (ผ่านหัวหน้าสาขาวิชา)</p>
+              <p className="mt-0.5"><strong>เรียน:</strong> คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม (ผ่านหัวหน้าสาขาวิชา)</p>
             </div>
 
             {/* Body Content */}
-            <div className="space-y-3 text-xs sm:text-sm text-slate-800 print:text-black leading-relaxed indent-8 text-justify">
+            <div className="space-y-2 text-xs text-slate-800 print:text-black leading-relaxed indent-8 text-justify">
               <p>
                 ข้าพเจ้า <strong>{reqUser.full_name || request.full_name || "บุคลากร"}</strong> รหัสประจำตัว{" "}
                 <strong>{reqUser.employee_code || request.employee_code || "-"}</strong> ตำแหน่ง{" "}
                 <strong>{reqUser.position || request.position || "อาจารย์/บุคลากร"}</strong> สังกัด{" "}
-                <strong>{reqUser.department_name || request.department_name || "คณะวิศวกรรมศาสตร์"}</strong> มีความประสงค์ขอ{" "}
+                <strong>{reqUser.department_name || request.department_name || "คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม"}</strong> มีความประสงค์ขอ{" "}
                 <strong>{request.leave_type_name}</strong> เนื่องจาก <strong>{request.reason || "มีภารกิจจำเป็น"}</strong>
               </p>
               <p>
@@ -96,66 +99,65 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
             </div>
 
             {/* Applicant Signature */}
-            <div className="mt-8 flex justify-end text-xs sm:text-sm text-slate-800 print:text-black">
-              <div className="text-center w-64">
-                <div className="h-10"></div>
+            <div className="mt-4 flex justify-end text-xs text-slate-800 print:text-black">
+              <div className="text-center w-56">
                 <p className="border-b border-dotted border-slate-400 pb-1 font-semibold">
                   ( {reqUser.full_name || request.full_name || "...................................................."} )
                 </p>
-                <p className="mt-1 text-xs text-slate-600 print:text-black">ผู้ขอลา (ลงนามอิเล็กทรอนิกส์)</p>
-                <p className="text-xs text-slate-500 print:text-black mt-0.5">
+                <p className="mt-0.5 text-[11px] text-slate-600 print:text-black">ผู้ขอลา (ลงนามอิเล็กทรอนิกส์)</p>
+                <p className="text-[10px] text-slate-500 print:text-black mt-0.5">
                   วันที่ {formatThaiDate(request.created_at || new Date())}
                 </p>
               </div>
             </div>
 
             {/* Approvals Section / Sign-off Boxes */}
-            <div className="mt-8 pt-6 border-t-2 border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-3 text-xs">
               {/* Box 1: Head of Department */}
-              <div className="border border-slate-300 rounded-xl p-4 bg-slate-50/50 print:bg-transparent">
-                <p className="font-bold text-slate-900 print:text-black mb-2">๑. ความเห็นของหัวหน้าสาขาวิชา</p>
-                <div className="space-y-1 text-slate-700 print:text-black">
-                  <p className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full border border-slate-400 inline-block bg-slate-800"></span>
+              <div className="border border-slate-300 rounded-xl p-3 bg-slate-50/50 print:bg-transparent">
+                <p className="font-bold text-slate-900 print:text-black mb-1">๑. ความเห็นของหัวหน้าสาขาวิชา</p>
+                <div className="space-y-0.5 text-slate-700 print:text-black text-[11px]">
+                  <p className="flex items-center gap-1.5 font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full border border-slate-600 inline-block bg-slate-800 print:bg-black"></span>
                     <span>เห็นควรอนุญาต</span>
                   </p>
-                  <p className="text-slate-600 print:text-black text-[11px] italic mt-1">
-                    "ได้ตรวจสอบตารางปฏิบัติงานและภาระงานแล้ว ไม่กระทบต่อการเรียนการสอน"
+                  <p className="text-slate-500 print:text-black italic">
+                    "ได้ตรวจสอบตารางปฏิบัติงานแล้ว ไม่กระทบต่อการเรียนการสอน"
                   </p>
                 </div>
-                <div className="mt-6 text-center">
-                  <p className="font-semibold text-slate-800 print:text-black">
-                    {request.approver_name || "หัวหน้าสาขาวิชา"}
+                <div className="mt-4 text-center">
+                  <p className="font-semibold text-slate-800 print:text-black text-xs">
+                    {request.approver_name || "รศ.ดร.วิศวกิจ นวัตกรรม"}
                   </p>
-                  <p className="text-[11px] text-slate-500 print:text-black">หัวหน้าสาขาวิชา</p>
+                  <p className="text-[10px] text-slate-500 print:text-black">หัวหน้าสาขาวิชา</p>
                 </div>
               </div>
 
               {/* Box 2: Dean / Final Order */}
-              <div className="border border-slate-300 rounded-xl p-4 bg-slate-50/50 print:bg-transparent relative overflow-hidden">
+              <div className="border border-slate-300 rounded-xl p-3 bg-slate-50/50 print:bg-transparent relative overflow-hidden">
                 {isApproved && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-md text-[10px] font-bold border border-emerald-300 print:border-black print:text-black">
-                    <CheckCircle className="w-3 h-3" />
+                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold border border-emerald-300 print:border-black print:text-black">
+                    <CheckCircle className="w-2.5 h-2.5" />
                     <span>อนุมัติในระบบแล้ว</span>
                   </div>
                 )}
-                <p className="font-bold text-slate-900 print:text-black mb-2">๒. คำสั่งคณบดี / ผู้มีอำนาจ</p>
-                <div className="space-y-1 text-slate-700 print:text-black">
+                <p className="font-bold text-slate-900 print:text-black mb-1">๒. คำสั่งคณบดี / ผู้มีอำนาจ</p>
+                <div className="space-y-0.5 text-slate-700 print:text-black text-[11px]">
                   <p className="flex items-center gap-1.5 font-semibold text-emerald-800 print:text-black">
-                    <span className="w-3 h-3 rounded-full border border-emerald-600 inline-block bg-emerald-600 print:bg-black"></span>
+                    <span className="w-2.5 h-2.5 rounded-full border border-emerald-600 inline-block bg-emerald-600 print:bg-black"></span>
                     <span>{isApproved ? "อนุมัติ" : "รอการอนุมัติ"}</span>
                   </p>
                   {request.approved_at && (
-                    <p className="text-[11px] text-slate-500 print:text-black mt-1">
+                    <p className="text-[10px] text-slate-500 print:text-black">
                       อนุมัติเมื่อ: {formatThaiDateTime(request.approved_at)}
                     </p>
                   )}
                 </div>
-                <div className="mt-6 text-center">
-                  <p className="font-semibold text-slate-800 print:text-black">
+                <div className="mt-4 text-center">
+                  <p className="font-semibold text-slate-800 print:text-black text-xs">
                     {request.approver_name || "คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม"}
                   </p>
-                  <p className="text-[11px] text-slate-500 print:text-black">
+                  <p className="text-[10px] text-slate-500 print:text-black">
                     คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม
                   </p>
                 </div>
@@ -163,7 +165,7 @@ export default function OfficialLeaveFormModal({ isOpen, onClose, request, user 
             </div>
 
             {/* Form Footer Stamp */}
-            <div className="mt-8 text-center text-[10px] text-slate-400 print:text-slate-600 border-t border-slate-100 pt-3">
+            <div className="mt-4 text-center text-[9px] text-slate-400 print:text-slate-600 border-t border-slate-100 pt-2">
               เอกสารนี้สร้างขึ้นโดยระบบสารสนเทศบุคลากรและการลางานออนไลน์ มหาวิทยาลัยกาฬสินธุ์ (Electronic Form Verified)
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Printer, X, Building, FileText, CheckCircle2, ShieldCheck, Download } from "lucide-react";
+import { Printer, X, Building, FileText } from "lucide-react";
 import { formatThaiDate } from "../utils/dateUtils";
 
 export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user }) {
@@ -41,17 +41,19 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
           </div>
         </div>
 
-        {/* Official Printable Paper Container */}
-        <div className="p-6 sm:p-10 overflow-y-auto print:p-0 print:overflow-visible print:text-black font-sans leading-relaxed text-slate-800">
-          <div className="border border-slate-300 p-8 sm:p-12 rounded-2xl bg-white print:border-none print:p-0 shadow-xs">
-            
+        {/* Printable Paper Container */}
+        <div className="p-6 sm:p-10 overflow-y-auto print:p-0 print:overflow-visible font-sans text-slate-800">
+          <div
+            id="printable-document"
+            className="border border-slate-300 p-8 sm:p-10 rounded-2xl bg-white print:border-none print:p-0 print:text-black shadow-xs leading-normal"
+          >
             {/* 1. แบบฟอร์มขออนุมัติเดินทางไปปฏิบัติงาน / ประชุมวิชาการ */}
             {title.includes("เดินทาง") || title.includes("ประชุม") ? (
-              <div className="space-y-6 text-xs sm:text-sm">
-                <div className="text-center border-b-2 border-slate-800 pb-4">
+              <div className="space-y-4 text-xs sm:text-sm">
+                <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <Building className="w-7 h-7 text-red-900 print:text-black" />
-                    <h1 className="text-lg sm:text-xl font-bold text-slate-900 print:text-black">
+                    <h1 className="text-lg font-bold text-slate-900 print:text-black">
                       บันทึกข้อความ (แบบขออนุมัติเดินทางไปปฏิบัติงานและประชุมวิชาการ)
                     </h1>
                   </div>
@@ -67,25 +69,25 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
                   <p className="text-right"><strong>เรียน:</strong> คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม</p>
                 </div>
 
-                <div className="space-y-3 leading-relaxed text-justify text-slate-800 print:text-black indent-8">
+                <div className="space-y-2 leading-relaxed text-justify text-slate-800 print:text-black indent-8 text-xs">
                   <p>
-                    ด้วยข้าพเจ้า <strong>{user?.full_name || "...................................................."}</strong> ตำแหน่ง <strong>{user?.position || "อาจารย์ประจำภาควิชา"}</strong> มีความประสงค์จะเดินทางไปปฏิบัติราชการเพื่อเข้าร่วมประชุมวิชาการระดับชาติ/นานาชาติ ณ ............................................................................ ระหว่างวันที่ ............................................. ถึงวันที่ ............................................. รวมระยะเวลา ................... วัน
+                    ด้วยข้าพเจ้า <strong>{user?.full_name || "...................................................."}</strong> ตำแหน่ง <strong>{user?.position || "อาจารย์ประจำสาขาวิชา"}</strong> สังกัด <strong>{user?.department_name || "คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม"}</strong> มีความประสงค์จะเดินทางไปปฏิบัติงาน/ประชุมวิชาการ ณ ............................................................................ ระหว่างวันที่ ............................................. ถึงวันที่ ............................................. รวมระยะเวลา ................... วัน
                   </p>
                   <p>
                     ในการนี้ ข้าพเจ้าได้ดำเนินการจัดตารางสอนชดเชยและมอบหมายงานในหน้าที่ให้อาจารย์ ................................................................ ปฏิบัติหน้าที่แทนเรียบร้อยแล้ว โดยไม่กระทบต่อการจัดการเรียนการสอนและภารกิจของทางราชการ
                   </p>
                 </div>
 
-                <div className="pt-6 border-t border-slate-200 grid grid-cols-2 gap-4 text-xs">
-                  <div className="border border-slate-300 p-4 rounded-xl text-center">
-                    <p className="font-bold text-slate-800 mb-6">ความเห็นของหัวหน้าสาขาวิชา</p>
+                <div className="pt-4 border-t border-slate-200 grid grid-cols-2 gap-3 text-xs">
+                  <div className="border border-slate-300 p-3 rounded-xl text-center">
+                    <p className="font-bold text-slate-800 mb-4">ความเห็นของหัวหน้าสาขาวิชา</p>
                     <p>( ................................................................ )</p>
-                    <p className="text-[11px] text-slate-500 mt-1">หัวหน้าสาขาวิชา</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">หัวหน้าสาขาวิชา</p>
                   </div>
-                  <div className="border border-slate-300 p-4 rounded-xl text-center">
-                    <p className="font-bold text-slate-800 mb-6">คำสั่งคณบดี / ผู้มีอำนาจอนุมัติ</p>
+                  <div className="border border-slate-300 p-3 rounded-xl text-center">
+                    <p className="font-bold text-slate-800 mb-4">คำสั่งคณบดี / ผู้มีอำนาจอนุมัติ</p>
                     <p>( ................................................................ )</p>
-                    <p className="text-[11px] text-slate-500 mt-1">คณบดีคณะวิศวกรรมศาสตร์ฯ</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">คณบดีคณะวิศวกรรมศาสตร์ฯ</p>
                   </div>
                 </div>
               </div>
@@ -93,11 +95,11 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
 
             /* 2. แบบใบลาพักผ่อน / ลากิจส่วนตัว / ลาป่วย */
             title.includes("ลา") || title.includes("พักผ่อน") || title.includes("ป่วย") ? (
-              <div className="space-y-6 text-xs sm:text-sm">
-                <div className="text-center border-b-2 border-slate-800 pb-4">
+              <div className="space-y-4 text-xs sm:text-sm">
+                <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <Building className="w-7 h-7 text-red-900 print:text-black" />
-                    <h1 className="text-lg sm:text-xl font-bold text-slate-900 print:text-black">
+                    <h1 className="text-lg font-bold text-slate-900 print:text-black">
                       แบบใบลา (ลาป่วย • ลากิจส่วนตัว • ลาพักผ่อน)
                     </h1>
                   </div>
@@ -107,20 +109,16 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
                 </div>
 
                 <div className="flex justify-between text-xs text-slate-700 print:text-black">
-                  <div>
-                    <p><strong>เขียนที่:</strong> มหาวิทยาลัยกาฬสินธุ์</p>
-                  </div>
-                  <div className="text-right">
-                    <p><strong>วันที่:</strong> {formatThaiDate(new Date())}</p>
-                  </div>
+                  <p><strong>เขียนที่:</strong> มหาวิทยาลัยกาฬสินธุ์</p>
+                  <p><strong>วันที่:</strong> {formatThaiDate(new Date())}</p>
                 </div>
 
                 <div className="text-xs text-slate-800 print:text-black">
                   <p><strong>เรื่อง:</strong> ขออนุญาตลา ( [ ] ลาป่วย &nbsp;&nbsp; [ ] ลากิจส่วนตัว &nbsp;&nbsp; [ ] ลาพักผ่อน )</p>
-                  <p className="mt-1"><strong>เรียน:</strong> คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม (ผ่านหัวหน้าสาขาวิชา)</p>
+                  <p className="mt-0.5"><strong>เรียน:</strong> คณบดีคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม (ผ่านหัวหน้าสาขาวิชา)</p>
                 </div>
 
-                <div className="space-y-3 leading-relaxed text-justify text-slate-800 print:text-black indent-8">
+                <div className="space-y-2 leading-relaxed text-justify text-slate-800 print:text-black indent-8 text-xs">
                   <p>
                     ข้าพเจ้า <strong>{user?.full_name || "...................................................."}</strong> รหัสประจำตัว <strong>{user?.employee_code || "......................."}</strong> ตำแหน่ง <strong>{user?.position || "อาจารย์ประจำสาขาวิชา"}</strong> สังกัด <strong>{user?.department_name || "คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม"}</strong>
                   </p>
@@ -137,45 +135,45 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
                   <table className="w-full text-center">
                     <thead className="bg-slate-100 print:bg-transparent border-b border-slate-300 font-bold">
                       <tr>
-                        <th className="p-2 border-r border-slate-300">ประเภทการลา</th>
-                        <th className="p-2 border-r border-slate-300">สิทธิ์วันลาปีนี้</th>
-                        <th className="p-2 border-r border-slate-300">ลามาแล้ว (วัน)</th>
-                        <th className="p-2 border-r border-slate-300">ลาครั้งนี้ (วัน)</th>
-                        <th className="p-2">คงเหลือ (วัน)</th>
+                        <th className="p-1.5 border-r border-slate-300">ประเภทการลา</th>
+                        <th className="p-1.5 border-r border-slate-300">สิทธิ์วันลาปีนี้</th>
+                        <th className="p-1.5 border-r border-slate-300">ลามาแล้ว (วัน)</th>
+                        <th className="p-1.5 border-r border-slate-300">ลาครั้งนี้ (วัน)</th>
+                        <th className="p-1.5">คงเหลือ (วัน)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       <tr>
-                        <td className="p-2 border-r border-slate-300 font-semibold">ลาพักผ่อนประจำปี</td>
-                        <td className="p-2 border-r border-slate-300">๑๐</td>
-                        <td className="p-2 border-r border-slate-300">........</td>
-                        <td className="p-2 border-r border-slate-300">........</td>
-                        <td className="p-2">........</td>
+                        <td className="p-1.5 border-r border-slate-300 font-semibold">ลาพักผ่อนประจำปี</td>
+                        <td className="p-1.5 border-r border-slate-300">๑๐</td>
+                        <td className="p-1.5 border-r border-slate-300">........</td>
+                        <td className="p-1.5 border-r border-slate-300">........</td>
+                        <td className="p-1.5">........</td>
                       </tr>
                       <tr>
-                        <td className="p-2 border-r border-slate-300 font-semibold">ลาป่วย / ลากิจ</td>
-                        <td className="p-2 border-r border-slate-300">๓๐ / ๑๐</td>
-                        <td className="p-2 border-r border-slate-300">........</td>
-                        <td className="p-2 border-r border-slate-300">........</td>
-                        <td className="p-2">........</td>
+                        <td className="p-1.5 border-r border-slate-300 font-semibold">ลาป่วย / ลากิจ</td>
+                        <td className="p-1.5 border-r border-slate-300">๓๐ / ๑๐</td>
+                        <td className="p-1.5 border-r border-slate-300">........</td>
+                        <td className="p-1.5 border-r border-slate-300">........</td>
+                        <td className="p-1.5">........</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
 
                 {/* Signatures */}
-                <div className="pt-6 grid grid-cols-2 gap-4 text-xs">
-                  <div className="border border-slate-300 p-4 rounded-xl text-center">
-                    <p className="font-bold text-slate-800 mb-6">ความเห็นของหัวหน้าสาขาวิชา</p>
-                    <p className="mb-1">[ ] เห็นควรอนุญาต &nbsp;&nbsp; [ ] ไม่เห็นควรอนุญาต</p>
-                    <p className="mt-4">( ................................................................ )</p>
-                    <p className="text-[11px] text-slate-500 mt-1">หัวหน้าสาขาวิชา</p>
+                <div className="pt-3 grid grid-cols-2 gap-3 text-xs">
+                  <div className="border border-slate-300 p-3 rounded-xl text-center">
+                    <p className="font-bold text-slate-800 mb-4">ความเห็นของหัวหน้าสาขาวิชา</p>
+                    <p className="mb-1 text-[11px]">[ ] เห็นควรอนุญาต &nbsp;&nbsp; [ ] ไม่เห็นควรอนุญาต</p>
+                    <p className="mt-3">( ................................................................ )</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">หัวหน้าสาขาวิชา</p>
                   </div>
-                  <div className="border border-slate-300 p-4 rounded-xl text-center">
-                    <p className="font-bold text-slate-800 mb-6">คำสั่งคณบดีคณะวิศวกรรมศาสตร์ฯ</p>
-                    <p className="mb-1">[ ] อนุมัติ &nbsp;&nbsp; [ ] ไม่อนุมัติ</p>
-                    <p className="mt-4">( ................................................................ )</p>
-                    <p className="text-[11px] text-slate-500 mt-1">คณบดีคณะวิศวกรรมศาสตร์ฯ</p>
+                  <div className="border border-slate-300 p-3 rounded-xl text-center">
+                    <p className="font-bold text-slate-800 mb-4">คำสั่งคณบดีคณะวิศวกรรมศาสตร์ฯ</p>
+                    <p className="mb-1 text-[11px]">[ ] อนุมัติ &nbsp;&nbsp; [ ] ไม่อนุมัติ</p>
+                    <p className="mt-3">( ................................................................ )</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">คณบดีคณะวิศวกรรมศาสตร์ฯ</p>
                   </div>
                 </div>
               </div>
@@ -183,11 +181,11 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
 
             /* 3. เอกสารระเบียบ / วิจัย / คู่มือ */
             (
-              <div className="space-y-6 text-xs sm:text-sm">
-                <div className="text-center border-b-2 border-slate-800 pb-4">
+              <div className="space-y-4 text-xs sm:text-sm">
+                <div className="text-center border-b-2 border-slate-800 pb-3">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <Building className="w-7 h-7 text-red-900 print:text-black" />
-                    <h1 className="text-lg sm:text-xl font-bold text-slate-900 print:text-black">
+                    <h1 className="text-lg font-bold text-slate-900 print:text-black">
                       {title}
                     </h1>
                   </div>
@@ -196,31 +194,31 @@ export default function OfficialTemplateViewerModal({ isOpen, onClose, doc, user
                   </h2>
                 </div>
 
-                <div className="p-4 bg-slate-50 print:bg-transparent rounded-xl border border-slate-200 text-xs leading-relaxed space-y-2">
+                <div className="p-3 bg-slate-50 print:bg-transparent rounded-xl border border-slate-200 text-xs leading-relaxed space-y-1.5">
                   <p className="font-bold text-slate-900">หมวดหมู่: {category}</p>
                   <p className="text-slate-700">
                     เอกสารนี้เป็นเอกสารและแบบฟอร์มมาตรฐานของคณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยกาฬสินธุ์ สำหรับให้อาจารย์ บุคลากร และเจ้าหน้าที่ใช้ในการดำเนินงานทางราชการ
                   </p>
                 </div>
 
-                <div className="space-y-3 leading-relaxed text-justify text-slate-800 print:text-black">
+                <div className="space-y-2 leading-relaxed text-justify text-slate-800 print:text-black text-xs">
                   <h3 className="font-bold text-slate-900 text-sm">สาระสำคัญและข้อปฏิบัติ:</h3>
-                  <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-700 print:text-black">
+                  <ul className="list-disc pl-5 space-y-1 text-xs text-slate-700 print:text-black">
                     <li>บุคลากรสามารถยื่นคำขอและติดตามสถานะได้ผ่านระบบสารสนเทศออนไลน์ตลอด ๒๔ ชั่วโมง</li>
                     <li>การยื่นขออนุมัติลางานล่วงหน้าควรดำเนินการก่อนวันเดินทางอย่างน้อย ๓ วันทำการ</li>
                     <li>เอกสารนี้ได้รับการรับรองความถูกต้องตามระเบียบมหาวิทยาลัยกาฬสินธุ์ ว่าด้วยการบริหารงานบุคคล</li>
                   </ul>
                 </div>
 
-                <div className="pt-8 text-center text-xs text-slate-500 border-t border-slate-200">
+                <div className="pt-4 text-center text-xs text-slate-500 border-t border-slate-200">
                   <p>ฝ่ายบริหารงานบุคคลและเทคโนโลยีสารสนเทศ คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม</p>
-                  <p className="text-[11px] mt-0.5">มหาวิทยาลัยกาฬสินธุ์ • www.ksu.ac.th</p>
+                  <p className="text-[10px] mt-0.5">มหาวิทยาลัยกาฬสินธุ์ • www.ksu.ac.th</p>
                 </div>
               </div>
             )}
 
             {/* Verification Footer */}
-            <div className="mt-8 text-center text-[10px] text-slate-400 print:text-slate-600 border-t border-slate-100 pt-3">
+            <div className="mt-4 text-center text-[9px] text-slate-400 print:text-slate-600 border-t border-slate-100 pt-2">
               เอกสารอิเล็กทรอนิกส์ คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยกาฬสินธุ์ (Official Electronic Paperless System)
             </div>
           </div>
