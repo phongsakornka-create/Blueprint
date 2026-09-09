@@ -669,14 +669,22 @@ export default function Employees() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">ลิงก์รูปภาพโปรไฟล์ (Image URL)</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700 uppercase">
+                ลิงก์รูปภาพโปรไฟล์ (Image URL)
+              </label>
+              <span className="text-[11px] text-slate-400 font-normal">ไม่บังคับ (เว้นว่างได้)</span>
+            </div>
             <input
               type="text"
-              placeholder="https://... หรือ /uploads/..."
+              placeholder="เช่น https://domain.com/photo.jpg (หากไม่มีให้ปล่อยว่างไว้)"
               value={formData.profile_image}
               onChange={(e) => setFormData({ ...formData, profile_image: e.target.value })}
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800"
+              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800 transition"
             />
+            <p className="text-[11px] text-slate-500 mt-1">
+              💡 <strong>คำแนะนำ:</strong> หากไม่มีรูปภาพ สามารถปล่อยว่างไว้ได้เลยครับ ระบบจะสร้างภาพโปรไฟล์ตัวอักษรย่อชื่อภาษาไทย (เช่น <strong>ส</strong>) บนโทนสีคณะให้อัตโนมัติ
+            </p>
           </div>
 
           {!isEditMode && (
