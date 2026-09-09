@@ -36,7 +36,7 @@ export function canApproveLeaves(role) {
 }
 
 export function canManageEmployees(role) {
-  return role === ROLES.ADMIN;
+  return role === ROLES.ADMIN || role === ROLES.STAFF;
 }
 
 export function canViewAllEmployees(role) {

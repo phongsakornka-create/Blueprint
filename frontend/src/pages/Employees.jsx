@@ -21,8 +21,47 @@ import {
   CheckCircle,
   AlertCircle,
   Briefcase,
-  Camera,
 } from "lucide-react";
+
+function EmployeeAvatar({ src, name, size = "large" }) {
+  const [error, setError] = useState(false);
+  const isValidUrl = src && typeof src === "string" && (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/uploads/") || src.startsWith("/"));
+
+  const initial = name
+    ? name.replace(/^(ศาสตราจารย์|รองศาสตราจารย์|ผู้ช่วยศาสตราจารย์|อาจารย์|ศ\.|รศ\.|ผศ\.|อ\.|ดร\.|นาย|นาง|นางสาว)\s*/g, "").trim().charAt(0) || name.charAt(0)
+    : "U";
+
+  if (isValidUrl && !error) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        onError={() => setError(true)}
+        className={
+          size === "large"
+            ? "w-24 h-24 rounded-2xl object-cover shadow-lg border-4 border-white bg-white group-hover:scale-105 transition-transform"
+            : size === "modal"
+            ? "w-24 h-24 rounded-3xl object-cover shadow-lg border border-slate-200 shrink-0"
+            : "w-10 h-10 rounded-xl object-cover shadow-xs border border-slate-200 shrink-0"
+        }
+      />
+    );
+  }
+
+  return (
+    <div
+      className={
+        size === "large"
+          ? "w-24 h-24 rounded-2xl bg-gradient-to-br from-red-900 via-red-800 to-slate-900 text-white font-black text-3xl flex items-center justify-center shadow-lg border-4 border-white group-hover:scale-105 transition-transform"
+          : size === "modal"
+          ? "w-24 h-24 rounded-3xl bg-gradient-to-br from-red-800 to-slate-900 text-white font-black text-4xl flex items-center justify-center shadow-lg shrink-0"
+          : "w-10 h-10 rounded-xl bg-gradient-to-br from-red-900 to-slate-900 text-white font-bold flex items-center justify-center text-sm shrink-0"
+      }
+    >
+      {initial}
+    </div>
+  );
+}
 
 export default function Employees() {
   const { user } = useAuth();
@@ -287,6 +326,18 @@ export default function Employees() {
               <List className="w-4 h-4" />
             </button>
           </div>
+
+          {/* Quick Add Button in Toolbar */}
+          {isAdmin && (
+            <button
+              onClick={handleOpenAdd}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition shrink-0"
+              title="เพิ่มข้อมูลบุคลากรใหม่"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>เพิ่มบุคลากร</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -319,19 +370,7 @@ export default function Employees() {
 
                 {/* Big Photo / Avatar Container */}
                 <div className="px-5 -mt-12 flex flex-col items-center text-center">
-                  <div className="relative">
-                    {emp.profile_image ? (
-                      <img
-                        src={emp.profile_image}
-                        alt={emp.full_name}
-                        className="w-24 h-24 rounded-2xl object-cover shadow-lg border-4 border-white bg-white group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white font-black text-3xl flex items-center justify-center shadow-lg border-4 border-white group-hover:scale-105 transition-transform">
-                        {emp.full_name?.charAt(0)}
-                      </div>
-                    )}
-                  </div>
+                  <EmployeeAvatar src={emp.profile_image} name={emp.full_name} size="large" />
 
                   {/* Name & Code */}
                   <h3 className="font-extrabold text-slate-900 text-base mt-3 leading-snug group-hover:text-red-900 transition">
@@ -417,17 +456,7 @@ export default function Employees() {
                   <tr key={emp.id} className="hover:bg-slate-50/60">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        {emp.profile_image ? (
-                          <img
-                            src={emp.profile_image}
-                            alt={emp.full_name}
-                            className="w-10 h-10 rounded-xl object-cover shadow-xs border border-slate-200 shrink-0"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white font-bold flex items-center justify-center text-sm shrink-0">
-                            {emp.full_name?.charAt(0)}
-                          </div>
-                        )}
+                        <EmployeeAvatar src={emp.profile_image} name={emp.full_name} size="small" />
                         <span className="font-bold text-slate-900">{emp.full_name}</span>
                       </div>
                     </td>
@@ -490,17 +519,7 @@ export default function Employees() {
         {viewModalUser && (
           <div className="space-y-6">
             <div className="flex items-center gap-5 pb-4 border-b border-slate-100">
-              {viewModalUser.profile_image ? (
-                <img
-                  src={viewModalUser.profile_image}
-                  alt={viewModalUser.full_name}
-                  className="w-24 h-24 rounded-3xl object-cover shadow-lg border-2 border-red-800/30"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-red-800 to-slate-900 text-white font-black text-4xl flex items-center justify-center shadow-lg shrink-0">
-                  {viewModalUser.full_name?.charAt(0)}
-                </div>
-              )}
+              <EmployeeAvatar src={viewModalUser.profile_image} name={viewModalUser.full_name} size="modal" />
               <div>
                 <h3 className="text-xl font-bold text-slate-900">{viewModalUser.full_name}</h3>
                 <p className="text-xs text-red-800 font-mono font-semibold mt-0.5">รหัส: {viewModalUser.employee_code}</p>

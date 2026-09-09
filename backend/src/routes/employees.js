@@ -12,9 +12,9 @@ router.get("/meta/departments", employeeController.getDepartments);
 router.get("/", requireRole(["head", "staff", "admin"]), employeeController.getAll);
 router.get("/:id", requireRole(["head", "staff", "admin"]), employeeController.getById);
 
-// เฉพาะ admin จัดการข้อมูลบุคลากรได้
-router.post("/", requireRole(["admin"]), employeeController.create);
-router.put("/:id", requireRole(["admin"]), employeeController.update);
+// admin และ staff จัดการข้อมูลบุคลากรได้
+router.post("/", requireRole(["admin", "staff"]), employeeController.create);
+router.put("/:id", requireRole(["admin", "staff"]), employeeController.update);
 router.delete("/:id", requireRole(["admin"]), employeeController.remove);
 
 module.exports = router;
