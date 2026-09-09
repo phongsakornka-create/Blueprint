@@ -1,28 +1,30 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { leaveService } from "../services/leaveService";
+import { useAuth } from "../context/AuthContext";
 import { LeaveStatusBadge } from "../components/Badge";
 import Modal from "../components/Modal";
+import OfficialLeaveFormModal from "../components/OfficialLeaveFormModal";
+import { exportLeaveRequestsToCSV } from "../utils/exportExcel";
 import { formatThaiDate, formatThaiDateTime } from "../utils/dateUtils";
 import {
   History,
   FilePlus2,
-  Search,
-  Filter,
   Eye,
-  Calendar,
-  Clock,
   Paperclip,
   CheckCircle,
   XCircle,
-  AlertCircle,
+  Printer,
+  Download,
 } from "lucide-react";
 
 export default function LeaveHistory() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [printRequest, setPrintRequest] = useState(null);
 
   const loadRequests = async () => {
     setLoading(true);
@@ -45,6 +47,13 @@ export default function LeaveHistory() {
     return r.status === filterStatus;
   });
 
+  const handleExportCSV = () => {
+    exportLeaveRequestsToCSV(
+      filteredRequests,
+      `ประวัติการลา_${user?.full_name || "บุคลากร"}_มกส.csv`
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -52,17 +61,29 @@ export default function LeaveHistory() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">ประวัติการลางานของฉัน</h1>
           <p className="text-sm text-slate-600 mt-1">
-            รายการคำขอลางานทั้งหมด สถานะการพิจารณา และประวัติการอนุมัติ
+            รายการคำขอลางานทั้งหมด สถานะการพิจารณา และพิมพ์ใบลาทางการ
           </p>
         </div>
 
-        <Link
-          to="/leave-request"
-          className="flex items-center gap-2 px-4 py-2.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md shadow-red-900/20 transition self-start sm:self-auto"
-        >
-          <FilePlus2 className="w-4 h-4" />
-          ยื่นคำขอลาใหม่
-        </Link>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {requests.length > 0 && (
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold rounded-xl text-xs sm:text-sm shadow-xs transition"
+            >
+              <Download className="w-4 h-4 text-emerald-600" />
+              <span>ส่งออก Excel</span>
+            </button>
+          )}
+
+          <Link
+            to="/leave-request"
+            className="flex items-center gap-2 px-4 py-2.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md shadow-red-900/20 transition"
+          >
+            <FilePlus2 className="w-4 h-4" />
+            ยื่นคำขอลาใหม่
+          </Link>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -76,7 +97,7 @@ export default function LeaveHistory() {
           <button
             key={tab.id}
             onClick={() => setFilterStatus(tab.id)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 cursor-pointer ${
               filterStatus === tab.id
                 ? "bg-red-800 text-white shadow-xs"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -112,7 +133,7 @@ export default function LeaveHistory() {
                   <th className="px-5 py-4">จำนวนวัน</th>
                   <th className="px-5 py-4">เหตุผล</th>
                   <th className="px-5 py-4">สถานะ</th>
-                  <th className="px-5 py-4 text-right">รายละเอียด</th>
+                  <th className="px-5 py-4 text-right">การจัดการ</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -133,13 +154,23 @@ export default function LeaveHistory() {
                       <LeaveStatusBadge status={req.status} />
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <button
-                        onClick={() => setSelectedRequest(req)}
-                        className="p-1.5 text-slate-500 hover:text-red-800 hover:bg-slate-100 rounded-lg transition"
-                        title="ดูรายละเอียด"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => setPrintRequest(req)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-red-800 hover:bg-red-50 border border-red-200 rounded-lg transition font-medium"
+                          title="พิมพ์ใบลาทางการ / PDF"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">พิมพ์ใบลา</span>
+                        </button>
+                        <button
+                          onClick={() => setSelectedRequest(req)}
+                          className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
+                          title="ดูรายละเอียด"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -231,9 +262,31 @@ export default function LeaveHistory() {
                 </p>
               </div>
             )}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setPrintRequest(selectedRequest);
+                  setSelectedRequest(null);
+                }}
+                className="w-full py-2.5 bg-slate-900 hover:bg-black text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition"
+              >
+                <Printer className="w-4 h-4" />
+                <span>พิมพ์ใบลาทางการ (PDF/Print)</span>
+              </button>
+            </div>
           </div>
         )}
       </Modal>
+
+      {/* Official Leave Form Modal */}
+      <OfficialLeaveFormModal
+        isOpen={!!printRequest}
+        onClose={() => setPrintRequest(null)}
+        request={printRequest}
+        user={user}
+      />
     </div>
   );
 }

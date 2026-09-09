@@ -4,20 +4,21 @@ import { employeeService } from "../services/employeeService";
 import { useAuth } from "../context/AuthContext";
 import { LeaveStatusBadge } from "../components/Badge";
 import Modal from "../components/Modal";
+import OfficialLeaveFormModal from "../components/OfficialLeaveFormModal";
+import { exportLeaveRequestsToCSV } from "../utils/exportExcel";
 import { formatThaiDate, formatThaiDateTime } from "../utils/dateUtils";
 import {
   CheckSquare,
   CheckCircle2,
   XCircle,
   Clock,
-  User,
-  Building,
   Paperclip,
-  Calendar,
   AlertCircle,
   Check,
   X,
   Eye,
+  Printer,
+  Download,
 } from "lucide-react";
 
 export default function LeaveApproval() {
@@ -34,6 +35,7 @@ export default function LeaveApproval() {
   const [rejectModalReq, setRejectModalReq] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [detailModalReq, setDetailModalReq] = useState(null);
+  const [printRequest, setPrintRequest] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
@@ -98,7 +100,12 @@ export default function LeaveApproval() {
     }
   };
 
-  const pendingCount = requests.filter((r) => r.status === "pending").length;
+  const handleExportCSV = () => {
+    exportLeaveRequestsToCSV(
+      requests,
+      `รายงานคำขอลางาน_${user?.department_name || "คณะวิศวกรรมศาสตร์"}_มกส.csv`
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -114,6 +121,16 @@ export default function LeaveApproval() {
               : "พิจารณาคำขอลาของบุคลากรทั้งคณะวิศวกรรมศาสตร์ (Admin Portal)"}
           </p>
         </div>
+
+        {requests.length > 0 && (
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-900/20 transition self-start sm:self-auto cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>ส่งออกรายงาน Excel/CSV</span>
+          </button>
+        )}
       </div>
 
       {/* Message Toast */}
@@ -147,7 +164,7 @@ export default function LeaveApproval() {
             <button
               key={tab.id}
               onClick={() => setStatusTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 cursor-pointer ${
                 statusTab === tab.id
                   ? "bg-red-800 text-white shadow-xs"
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -235,7 +252,16 @@ export default function LeaveApproval() {
               </div>
 
               {/* Right Action Buttons */}
-              <div className="flex items-center gap-2 self-end md:self-center shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto justify-end">
+              <div className="flex items-center gap-2 self-end md:self-center shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto justify-end flex-wrap">
+                <button
+                  onClick={() => setPrintRequest(req)}
+                  className="flex items-center gap-1 px-3 py-2 text-xs text-red-800 hover:bg-red-50 border border-red-200 rounded-xl transition font-medium"
+                  title="พิมพ์ใบลาทางการ"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>พิมพ์ใบลา</span>
+                </button>
+
                 <button
                   onClick={() => setDetailModalReq(req)}
                   className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition text-xs font-semibold flex items-center gap-1"
@@ -250,7 +276,7 @@ export default function LeaveApproval() {
                     <button
                       onClick={() => handleApprove(req.id)}
                       disabled={actionLoading}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition disabled:opacity-50 cursor-pointer"
                     >
                       <Check className="w-4 h-4" />
                       อนุมัติ
@@ -258,7 +284,7 @@ export default function LeaveApproval() {
                     <button
                       onClick={() => setRejectModalReq(req)}
                       disabled={actionLoading}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition disabled:opacity-50 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                       ไม่อนุมัติ
@@ -371,32 +397,53 @@ export default function LeaveApproval() {
               </div>
             )}
 
-            {detailModalReq.status === "pending" && (
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                <button
-                  onClick={() => {
-                    handleApprove(detailModalReq.id);
-                    setDetailModalReq(null);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl"
-                >
-                  อนุมัติคำขอนี้
-                </button>
-                <button
-                  onClick={() => {
-                    const r = detailModalReq;
-                    setDetailModalReq(null);
-                    setRejectModalReq(r);
-                  }}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl"
-                >
-                  ไม่อนุมัติ
-                </button>
-              </div>
-            )}
+            <div className="pt-2 flex justify-between gap-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setPrintRequest(detailModalReq);
+                  setDetailModalReq(null);
+                }}
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center gap-1.5 transition"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>พิมพ์ใบลาทางการ</span>
+              </button>
+
+              {detailModalReq.status === "pending" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      handleApprove(detailModalReq.id);
+                      setDetailModalReq(null);
+                    }}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl"
+                  >
+                    อนุมัติคำขอนี้
+                  </button>
+                  <button
+                    onClick={() => {
+                      const r = detailModalReq;
+                      setDetailModalReq(null);
+                      setRejectModalReq(r);
+                    }}
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl"
+                  >
+                    ไม่อนุมัติ
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Modal>
+
+      {/* Official Leave Form Modal */}
+      <OfficialLeaveFormModal
+        isOpen={!!printRequest}
+        onClose={() => setPrintRequest(null)}
+        request={printRequest}
+      />
     </div>
   );
 }
