@@ -95,7 +95,6 @@ export default function Login() {
                     spellCheck="false"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="example@ksu.ac.th"
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800 transition"
                   />
                 </div>
@@ -118,7 +117,6 @@ export default function Login() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="กรอกรหัสผ่านของคุณ"
                     className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-800/20 focus:border-red-800 transition"
                   />
                   <button
