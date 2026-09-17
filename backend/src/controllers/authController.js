@@ -221,11 +221,14 @@ async function loginWithGoogle(req, res) {
 
     if (!user) {
       const employee_code = `G-${Date.now()}`;
+      const isOwnerAdmin = email.toLowerCase() === "phongsakorn.ka@ksu.ac.th" || email.toLowerCase().startsWith("admin");
+      const defaultRole = isOwnerAdmin ? "admin" : "lecturer";
+
       const insertResult = await pool.query(
         `INSERT INTO users (employee_code, full_name, email, google_id, role, profile_image)
-         VALUES ($1, $2, $3, $4, 'lecturer', $5)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [employee_code, name || email, email, googleId, picture]
+        [employee_code, name || email, email, googleId, defaultRole, picture]
       );
       user = insertResult.rows[0];
     } else if (!user.google_id) {

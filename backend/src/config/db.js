@@ -315,6 +315,46 @@ const dbClient = {
   },
 };
 
+// ฟังก์ชันสร้างหรืออัปเดตบัญชี Admin ประจำระบบอัตโนมัติ
+async function ensureAdminUser() {
+  try {
+    const adminEmail = "phongsakorn.ka@ksu.ac.th";
+    const adminPass = "1469900689920";
+    const pwHash = await bcrypt.hash(adminPass, 10);
+
+    const checkRes = await dbClient.query(
+      "SELECT id FROM users WHERE LOWER(email) = LOWER($1)",
+      [adminEmail]
+    );
+
+    if (checkRes.rows && checkRes.rows.length > 0) {
+      await dbClient.query(
+        "UPDATE users SET password_hash = $1, role = 'admin' WHERE id = $2",
+        [pwHash, checkRes.rows[0].id]
+      );
+      console.log(`✅ อัปเดตสิทธิ์ Admin และรหัสผ่านให้บัญชี: ${adminEmail} เรียบร้อย`);
+    } else {
+      await dbClient.query(
+        `INSERT INTO users (employee_code, full_name, email, password_hash, department_id, position, role, phone)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          "ENG-ADM00",
+          "พงศกร (ผู้ดูแลระบบ)",
+          adminEmail,
+          pwHash,
+          1,
+          "ผู้ดูแลระบบ คณะวิศวกรรมศาสตร์",
+          "admin",
+          "02-123-4567",
+        ]
+      );
+      console.log(`✅ เพิ่มบัญชี Admin ประจำระบบ: ${adminEmail} เรียบร้อยแล้ว`);
+    }
+  } catch (err) {
+    console.error("⚠️ ไม่สามารถสร้าง/อัปเดตบัญชี Admin อัตโนมัติได้:", err.message);
+  }
+}
+
 // ทดสอบ Connection ทันทีตอนเริ่มระบบ
 (async function testInit() {
   try {
@@ -325,6 +365,7 @@ const dbClient = {
     useSqlite = true;
     initSqlite();
   }
+  await ensureAdminUser();
 })();
 
 module.exports = dbClient;
