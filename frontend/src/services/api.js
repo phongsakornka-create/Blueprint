@@ -53,7 +53,7 @@ api.interceptors.response.use(
     }
 
     if (error.response && error.response.status === 401) {
-      if (!error.config?.url?.includes("/auth/login")) {
+      if (!error.config?.url?.includes("/auth/login") && !error.config?.url?.includes("/auth/google")) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         if (window.location.pathname !== "/login") {

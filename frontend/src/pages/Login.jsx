@@ -59,7 +59,10 @@ export default function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error("Google login error:", err);
-      setError(err.response?.data?.message || "ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่อีกครั้ง");
+      const errorMsg =
+        err.response?.data?.message ||
+        "ไม่มีสิทธิ์เข้าสู่ระบบ กรุณาใช้อีเมลมหาวิทยาลัยกาฬสินธุ์ (@ksu.ac.th) เท่านั้น";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -176,13 +179,14 @@ export default function Login() {
               <div className="flex justify-center">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
-                  onError={() => setError("ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่อีกครั้ง")}
+                  onError={() => setError("ไม่มีสิทธิ์เข้าสู่ระบบหรือไม่สามารถยืนยันตัวตนด้วย Google ได้")}
                   text="continue_with"
                   shape="rectangular"
                   theme="outline"
                   size="large"
                   locale="th"
                   width="340"
+                  hosted_domain="ksu.ac.th"
                 />
               </div>
             </form>

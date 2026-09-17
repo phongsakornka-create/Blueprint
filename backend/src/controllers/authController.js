@@ -210,6 +210,15 @@ async function loginWithGoogle(req, res) {
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
+    const normalizedEmail = (email || "").trim().toLowerCase();
+
+    // บังคับให้อนุญาตเฉพาะอีเมลมหาวิทยาลัยกาฬสินธุ์ (@ksu.ac.th) เท่านั้น
+    if (!normalizedEmail.endsWith("@ksu.ac.th")) {
+      return res.status(403).json({
+        message: `ไม่มีสิทธิ์เข้าสู่ระบบ: บัญชี (${email}) ไม่ได้รับอนุญาต กรุณาใช้อีเมล @ksu.ac.th ของมหาวิทยาลัยกาฬสินธุ์เท่านั้น`,
+      });
+    }
+
     let result = await pool.query(
       `SELECT u.*, d.name AS department_name 
        FROM users u 
