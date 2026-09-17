@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 import {
-  Building,
   Lock,
   Mail,
   AlertCircle,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export default function Login() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -46,6 +46,20 @@ export default function Login() {
       } else {
         setError(err.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+    setLoading(true);
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError(err.response?.data?.message || "ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
@@ -150,6 +164,27 @@ export default function Login() {
                   </>
                 )}
               </button>
+
+              {/* Divider */}
+              <div className="relative flex items-center gap-3 my-1">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-xs text-slate-400 font-medium shrink-0">หรือ</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+
+              {/* Google Sign-In Button */}
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError("ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาลองใหม่อีกครั้ง")}
+                  text="continue_with"
+                  shape="rectangular"
+                  theme="outline"
+                  size="large"
+                  locale="th"
+                  width="340"
+                />
+              </div>
             </form>
           </div>
         </div>
